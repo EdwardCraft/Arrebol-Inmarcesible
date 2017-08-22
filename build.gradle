@@ -1,0 +1,45 @@
+apply plugin: 'java'
+
+version = "1.1.2"
+
+repositories {
+	mavenCentral()
+}
+ 
+dependencies{
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+	compile "io.socket:socket.io-client:0.7.0"
+}
+
+sourceSets{
+	main{
+		output.resourcesDir = "build/classes/main"
+	}
+	
+}
+
+jar.doFirst {
+	sourceSets.main.output.resourcesDir = "/does/not/exist"
+	from configurations.compile.collect { zipTree it }
+	manifest{attributes 'Main-Class':'Start'}
+}
+
+jar.doLast {
+    sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
+}
+
+task unpackBundle(type: Copy){
+	from zipTree('libs/jl1.0.1.jar')
+	from zipTree('libs/mp3spi1.9.5.jar')
+	from zipTree('libs/tritonus_share.jar')
+	into 'build/classes/main'
+}
+
+
+task printDependencies << {
+	configurations.compile.each {
+		println it.name
+	}
+
+}
+
